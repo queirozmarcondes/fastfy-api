@@ -1,23 +1,57 @@
-// src/services/user.service.ts
+import bcrypt from 'bcrypt';
 
-import { users } from '../database/users.db';
+const SALT_ROUNDS = 10;
 
-interface CreateUserInput {
+type User = {
+  id: string;
   name: string;
   email: string;
-}
+  password: string;
+};
 
-export function listUsers() {
-  return users;
-}
+type CreateUserInput = {
+  name: string;
+  email: string;
+  password: string;
+  hashedPassword: string;
+};
 
-export function addUser({ name, email }: CreateUserInput) {
-  const newUser = {
-    id: crypto.randomUUID(),
-    name,
-    email,
-  };
+type UpdateUserInput = {
+  name: string;
+  email: string;
+};
 
-  users.push(newUser);
-  return newUser;
+const users: User[] = [];
+
+export class UserService {
+  static getAll(): User[] {
+    return users;
+  }
+
+  static getById(id: string): User | undefined {
+    return users.find((user) => user.id === id);
+  }
+
+  static async create(data: CreateUserInput): Promise<User> {
+    // Verifica se o email já está cadastrado
+    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+
+    const newUser: User = {
+      id: crypto.randomUUID(),
+      name: data.name,
+      email: data.email,
+      password: hashedPassword,
+    };
+
+    users.push(newUser);
+    return newUser;
+  }
+
+  static update(id: string, data: UpdateUserInput): User | null {
+    const index = users.findIndex((user) => user.id === id);
+    if (index === -1) return null;
+
+    users[index] = { ...users[index], ...data };
+    return users[index];
+  }
 }

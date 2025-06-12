@@ -4,19 +4,18 @@ import swaggerUI from '@fastify/swagger-ui';
 
 export default fp(async (fastify) => {
   // Registra o Swagger para geração do schema OpenAPI
-await fastify.register(swagger, {
-  openapi: {
-    info: {
-      title: 'Minha API',
-      description: 'Documentação automática gerada com Swagger.',
-      version: '1.0.0',
+  await fastify.register(swagger, {
+    openapi: {
+      info: {
+        title: 'Minha API',
+        description: 'Documentação automática gerada com Swagger.',
+        version: '1.0.0',
+      },
+      servers: [
+        { url: 'http://localhost:3000', description: 'Servidor local' },
+      ],
     },
-    servers: [
-      { url: 'http://localhost:3000', description: 'Servidor local' },
-    ],
-  },
-});
-
+  });
 
   // Registra a interface Swagger UI na rota /docs
   await fastify.register(swaggerUI, {
